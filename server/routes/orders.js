@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { load, mutate, uid } from '../db.js'
 import { requireAuth, requireRole } from '../auth.js'
+import { sendOrderConfirmation, sendSellerOrderAlert } from '../email.js'
 
 const router = Router()
 
@@ -90,6 +91,14 @@ router.post('/', requireRole('consumer'), async (req, res) => {
     }
     d.orders.push(order)
   })
+
+  // Fire-and-forget: the shopper gets a receipt, each seller gets their lines.
+  sendOrderConfirmation(order, req.user)
+  const fresh = await load()
+  for (const sellerId of new Set(order.items.map((i) => i.sellerId))) {
+    const seller = fresh.users.find((u) => u.id === sellerId)
+    if (seller) sendSellerOrderAlert(order, seller, order.items.filter((i) => i.sellerId === sellerId))
+  }
 
   res.status(201).json({ order })
 })

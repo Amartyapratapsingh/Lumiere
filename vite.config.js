@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   root: 'client',
+  // .env lives at the repo root, not inside client/.
+  envDir: '..',
   plugins: [react()],
   server: {
     port: 5173,

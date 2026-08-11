@@ -13,6 +13,7 @@ import Account from './pages/Account.jsx'
 import Wishlist from './pages/Wishlist.jsx'
 import Login from './pages/Login.jsx'
 import Signup from './pages/Signup.jsx'
+import Welcome from './pages/Welcome.jsx'
 import About from './pages/About.jsx'
 import Brands from './pages/Brands.jsx'
 import SellWithUs from './pages/SellWithUs.jsx'
@@ -25,7 +26,7 @@ import SellerOrders from './pages/seller/Orders.jsx'
 
 /** Gate a route behind sign-in, and optionally behind a specific role. */
 function Guard({ role, children }) {
-  const { user, loading } = useAuth()
+  const { user, loading, needsRole } = useAuth()
   const location = useLocation()
 
   if (loading) {
@@ -38,6 +39,8 @@ function Guard({ role, children }) {
   if (!user) {
     return <Navigate to="/login" replace state={{ from: location.pathname, role }} />
   }
+  // Signed in with Clerk but hasn't said whether they shop or sell yet.
+  if (needsRole) return <Navigate to="/welcome" replace />
   if (role && user.role !== role) {
     // Signed in with the wrong account type — send them somewhere useful.
     return <Navigate to={user.role === 'seller' ? '/seller' : '/'} replace />
@@ -62,6 +65,7 @@ export function App() {
           <Route path="/sell" element={<SellWithUs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/welcome" element={<Welcome />} />
           <Route path="/wishlist" element={<Wishlist />} />
 
           <Route path="/checkout" element={<Guard role="consumer"><Checkout /></Guard>} />

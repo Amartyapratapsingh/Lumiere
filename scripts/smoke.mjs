@@ -86,9 +86,26 @@ class CDP {
     return result.value
   }
 
-  async goto(path, settle = 2200) {
+  /** Poll until `expression` is truthy. Beats a fixed sleep — the dev bundle's
+   *  first-load time varies a lot depending on what's been transformed. */
+  async waitFor(expression, timeout = 12000) {
+    const start = Date.now()
+    while (Date.now() - start < timeout) {
+      try {
+        if (await this.eval(expression)) return true
+      } catch {}
+      await sleep(150)
+    }
+    return false
+  }
+
+  async goto(path, settle = 700) {
     await this.send('Page.navigate', { url: `${WEB}${path}` })
     await sleep(settle)
+    // Wait out the auth check and any route-level loading spinner.
+    await this.waitFor(
+      `!document.querySelector('.route-loading') && document.body.innerText.trim().length > 40`
+    )
   }
 
   /** Click the first element matching a CSS selector, optionally by text. */
@@ -216,12 +233,14 @@ async function main() {
     await page.shot('smoke-order-placed')
 
     console.log('\nCONSUMER — order history')
-    await page.goto('/orders')
     const placedCode = orderUrl.replace('/order/', '')
+    await page.goto('/orders')
+    await page.waitFor(`document.querySelectorAll('.order-card').length > 0`)
     check('new order appears in history', (await page.text()).includes(placedCode), placedCode)
 
     // Detail view reached from history should NOT use the celebratory copy.
-    await page.click('.order-card .link-arrow', null, 1800)
+    await page.click('.order-card .link-arrow', null, 1200)
+    await page.waitFor(`document.body.innerText.includes('${placedCode}')`)
     const detail = await page.text()
     check('order detail drops the thank-you heading', !detail.includes('Thank you'))
     check('order detail still shows the code', detail.includes(placedCode))

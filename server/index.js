@@ -6,17 +6,23 @@ import { fileURLToPath } from 'node:url'
 
 import { load } from './db.js'
 import { attachUser } from './auth.js'
+import { clerkAuth, attachClerkUser } from './clerk.js'
+import { PORT, describeConfig } from './config.js'
 import authRoutes from './routes/auth.js'
 import productRoutes from './routes/products.js'
 import orderRoutes from './routes/orders.js'
 import sellerRoutes, { UPLOAD_DIR } from './routes/seller.js'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-const PORT = process.env.PORT || 4000
 
 const app = express()
 app.use(express.json({ limit: '1mb' }))
 app.use(cookieParser())
+
+// Clerk first when configured; `attachUser` then stands down and the Clerk
+// session is resolved into req.user instead.
+app.use(clerkAuth())
+app.use(attachClerkUser)
 app.use(attachUser)
 
 // Seller-uploaded product photos. Served from the API so they survive a client
@@ -50,4 +56,5 @@ if (!db.products.length) {
 
 app.listen(PORT, () => {
   console.log(`  Lumière API  →  http://localhost:${PORT}`)
+  console.log(describeConfig())
 })

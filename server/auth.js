@@ -1,6 +1,13 @@
-/** Session handling: an opaque random token in an httpOnly cookie. */
+/**
+ * Built-in session handling: an opaque random token in an httpOnly cookie.
+ *
+ * This is the fallback used until Clerk keys are configured. Once they are,
+ * `CLERK_ENABLED` is true, the legacy login routes refuse to run, and
+ * `attachUser` steps aside for the Clerk equivalent.
+ */
 import { randomBytes } from 'node:crypto'
 import { load, mutate } from './db.js'
+import { CLERK_ENABLED } from './config.js'
 
 const COOKIE = 'lumiere_sid'
 const MAX_AGE_MS = 1000 * 60 * 60 * 24 * 30 // 30 days
@@ -40,6 +47,7 @@ export function publicUser(user) {
 
 /** Populates req.user when a valid session cookie is present. Never rejects. */
 export async function attachUser(req, _res, next) {
+  if (CLERK_ENABLED) return next() // Clerk resolves the session instead
   const token = req.cookies?.[COOKIE]
   if (!token) return next()
   const db = await load()
@@ -52,6 +60,12 @@ export async function attachUser(req, _res, next) {
 
 export const requireAuth = (req, res, next) =>
   req.user ? next() : res.status(401).json({ error: 'Please sign in to continue.' })
+
+/** Blocks the legacy password endpoints once Clerk is running the show. */
+export const requireLegacyAuth = (_req, res, next) =>
+  CLERK_ENABLED
+    ? res.status(410).json({ error: 'Password login is disabled — this site now signs in with Clerk.' })
+    : next()
 
 export const requireRole = (role) => (req, res, next) => {
   if (!req.user) return res.status(401).json({ error: 'Please sign in to continue.' })

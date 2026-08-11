@@ -34,7 +34,55 @@ npm run images   # 42 product/editorial photos from Pexels
 npm run fonts    # self-hosts Playfair Display + Inter so the site works offline
 ```
 
+### Optional: Clerk and Resend
+
+The site runs without either. Add them when you want real sign-in and real email:
+
+```bash
+copy .env.example .env    # Windows   (cp .env.example .env elsewhere)
+npm run check:config      # shows exactly what's set and what's missing
+```
+
+**Clerk — sign-up and sign-in.** Create a free app at
+[dashboard.clerk.com](https://dashboard.clerk.com), open **Configure → API keys**, and copy both
+keys into `.env`:
+
+```
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_…
+CLERK_SECRET_KEY=sk_test_…
+```
+
+Restart `npm run dev`. Clerk now handles sign-up, sign-in, social login, password reset and MFA —
+and the built-in password login switches off automatically. Clerk owns identity; this app still owns
+the profile (role, store details, addresses), joined by `user.clerkId`.
+
+New Clerk users are asked once, on `/welcome`, whether they're shopping or selling. If someone signs
+up with an email that matches a seeded account — `seller@lumiere.in`, say — that account is
+**adopted**, so the demo store keeps its products and order history.
+
+**Resend — transactional email.** Create an account at [resend.com](https://resend.com), make an API
+key with *Sending access*, and add:
+
+```
+RESEND_API_KEY=re_…
+```
+
+Four emails then go out: order confirmation to the shopper, a new-order alert to each seller with
+only their own lines, a welcome on sign-up, and a status update when an order ships or is delivered.
+
+The default `RESEND_FROM` uses Resend's shared test sender, which **only delivers to the address you
+registered with Resend**. To email anyone else, verify a domain at
+[resend.com/domains](https://resend.com/domains) and set `RESEND_FROM="Lumière <orders@yourdomain>"`.
+
+Seeded demo accounts use fake `@lumiere.in` addresses that would bounce, so mail to them is skipped —
+set `SELLER_ALERT_OVERRIDE` to your own address to receive those while testing.
+
+With no keys at all, emails print to the terminal so you can still see the whole flow.
+
 ### Demo accounts
+
+These work with the built-in login. Once Clerk is switched on you sign up through Clerk instead —
+but signing up with one of these email addresses adopts the matching demo account.
 
 | Role | Email | Password |
 | --- | --- | --- |
@@ -55,7 +103,10 @@ server/                 Express API (port 4000)
   catalog.js            The seed catalogue: 31 products, 3 seller storefronts, reviews
   seed.js               Rebuilds the database from catalog.js
   db.js                 JSON-file datastore (atomic writes, serialised, mtime-aware cache)
-  auth.js               Session cookies, password hashing, role guards
+  config.js             Reads .env and decides which integrations are live
+  auth.js               Built-in session cookies, password hashing, role guards
+  clerk.js              Clerk sessions + syncing Clerk users into the local database
+  email.js              Resend templates and sending (console fallback)
   routes/
     auth.js             signup / login / logout / me / profile
     products.js         catalogue, filters + facets, product detail, reviews
@@ -104,6 +155,7 @@ optional and only appear once a rating is chosen. One rating per person per prod
 | `npm run seed` | Reset the database to the seeded catalogue |
 | `npm run smoke` | End-to-end test through the real UI in headless Edge — 31 assertions covering both journeys |
 | `npm run check:upload` | Tests image upload (accepts JPEG, rejects non-images, blocks shoppers) and rating-only reviews |
+| `npm run check:config` | Reports which integrations are live and what's still missing from `.env` |
 | `npm run check:overflow` | Fails if any page scrolls horizontally at 414 / 768 / 1440 px |
 | `npm run images` / `npm run fonts` | Re-download assets |
 

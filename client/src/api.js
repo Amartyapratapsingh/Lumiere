@@ -1,10 +1,31 @@
 /** Thin fetch wrapper. Always sends the session cookie; throws readable errors. */
 
+/**
+ * When Clerk is running, it supplies a short-lived session token that has to
+ * ride along on every API call. AuthContext registers a getter here at start-up
+ * so the rest of the app can keep calling `api.*` without knowing about it.
+ */
+let getAuthToken = null
+export const setTokenGetter = (fn) => { getAuthToken = fn }
+
+async function authHeaders() {
+  if (!getAuthToken) return {}
+  try {
+    const token = await getAuthToken()
+    return token ? { Authorization: `Bearer ${token}` } : {}
+  } catch {
+    return {}
+  }
+}
+
 async function request(path, { method = 'GET', body, signal } = {}) {
   const res = await fetch(`/api${path}`, {
     method,
     credentials: 'include',
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers: {
+      ...(body ? { 'Content-Type': 'application/json' } : {}),
+      ...(await authHeaders()),
+    },
     body: body ? JSON.stringify(body) : undefined,
     signal,
   })
@@ -31,7 +52,9 @@ const qs = (params) => {
 
 export const api = {
   // auth
+  authConfig: () => request('/auth/config'),
   me: () => request('/auth/me'),
+  setRole: (body) => request('/auth/role', { method: 'POST', body }),
   login: (body) => request('/auth/login', { method: 'POST', body }),
   signup: (body) => request('/auth/signup', { method: 'POST', body }),
   logout: () => request('/auth/logout', { method: 'POST' }),
@@ -66,7 +89,8 @@ export const api = {
     const res = await fetch('/api/seller/uploads', {
       method: 'POST',
       credentials: 'include',
-      body: form, // no Content-Type — the browser sets the multipart boundary
+      headers: await authHeaders(), // no Content-Type — the browser sets the multipart boundary
+      body: form,
     })
     const data = await res.json().catch(() => ({}))
     if (!res.ok) throw new Error(data.error || 'That upload failed.')

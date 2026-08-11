@@ -7,6 +7,7 @@ import multer from 'multer'
 import { load, mutate, uid } from '../db.js'
 import { requireRole } from '../auth.js'
 import { decorate } from './products.js'
+import { sendStatusUpdate } from '../email.js'
 
 const router = Router()
 router.use(requireRole('seller'))
@@ -224,6 +225,8 @@ router.patch('/orders/:code/items/:variantId', async (req, res) => {
   const line = order.items.find((i) => i.variantId === req.params.variantId && i.sellerId === req.user.id)
   if (!line) return res.status(403).json({ error: 'That line is not yours to update.' })
 
+  const buyer = db.users.find((u) => u.id === order.userId)
+
   const updated = await mutate((d) => {
     const o = d.orders.find((x) => x.code === req.params.code)
     const it = o.items.find((i) => i.variantId === req.params.variantId && i.sellerId === req.user.id)
@@ -235,6 +238,7 @@ router.patch('/orders/:code/items/:variantId', async (req, res) => {
     return o
   })
 
+  sendStatusUpdate(updated, buyer, line, status)
   res.json({ order: { code: updated.code, status: updated.status }, itemStatus: status })
 })
 

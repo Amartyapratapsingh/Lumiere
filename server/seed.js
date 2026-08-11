@@ -40,6 +40,7 @@ async function seed() {
       phone: s.phone,
       storeRating: s.rating,
       since: s.since,
+      roleChosen: true,
       createdAt: daysAgo(400),
     })
   }
@@ -53,6 +54,7 @@ async function seed() {
     email: 'shopper@lumiere.in',
     passwordHash: hash('shop123'),
     phone: '+91 99870 22145',
+    roleChosen: true,
     createdAt: daysAgo(120),
     addresses: [
       {
