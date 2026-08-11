@@ -1,0 +1,23 @@
+node_modules/
+dist/
+
+# Runtime database — contains password hashes, sessions and real account data.
+# Recreate with `npm run seed`.
+server/data/db.json
+server/data/db.json.tmp
+
+# Product photos uploaded by sellers at runtime
+server/data/uploads/
+
+# Screenshots and headless browser profiles from the dev scripts
+.shots/
+
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+
+# Editor noise
+.vscode/
+.idea/
+*.swp

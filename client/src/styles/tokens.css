@@ -1,0 +1,101 @@
+/**
+ * Lumière design tokens.
+ *
+ * Same design as before — only the palette changed: deep navy, sky blue and
+ * white. The names below are unchanged so every existing rule recolours with
+ * the palette rather than needing to be rewritten.
+ */
+
+:root {
+  /* ---- Surface ---- */
+  --cream: #fbfdff;      /* page background — white with the faintest blue cast */
+  --cream-deep: #eef5fb; /* sunken surfaces, hover fills */
+  --paper: #ffffff;
+  --lilac: #e8f2fb;      /* soft sky wash */
+  --lilac-deep: #d5e8f7;
+  --blush: #e4f1fb;
+  --sand: #f0f7fd;
+
+  /* ---- Ink ---- */
+  --plum: #10293f;       /* deep navy — headings, primary buttons, footer */
+  --plum-soft: #1d4463;
+  --ink: #12263a;
+  --muted: #5c7286;
+  --muted-light: #94a8b9;
+  --line: #e2edf5;
+  --line-strong: #c8dbe9;
+
+  /* ---- Accent ---- */
+  --sage: #bfe0f5;       /* sky blue — selected chips, success accents */
+  --sage-deep: #3b8fc7;
+  --gold: #2f80c4;       /* mid blue — stars, small accents */
+  --gold-light: #7cc0e8;
+  --gold-wash: #e4f1fb;
+  --rose: #5aa9dc;
+  --berry: #0b3f66;      /* deepest navy — hover on dark buttons */
+
+  /* ---- Semantic ---- */
+  --success: #2c7fb8;
+  --success-wash: #e3f1fa;
+  --warning: #1f6591;
+  --warning-wash: #e7f2fa;
+  --danger: #b4433f;     /* kept warm: destructive actions must stay legible */
+  --danger-wash: #fbeceb;
+  --info-wash: var(--lilac);
+
+  /* ---- Type ---- */
+  --font-display: 'Playfair Display', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  --step--1: clamp(0.78rem, 0.76rem + 0.1vw, 0.83rem);
+  --step-0: clamp(0.9rem, 0.87rem + 0.14vw, 0.97rem);
+  --step-1: clamp(1.05rem, 1rem + 0.25vw, 1.2rem);
+  --step-2: clamp(1.3rem, 1.2rem + 0.5vw, 1.6rem);
+  --step-3: clamp(1.7rem, 1.45rem + 1.1vw, 2.4rem);
+  --step-4: clamp(2.2rem, 1.7rem + 2.2vw, 3.6rem);
+  --step-5: clamp(3rem, 1.9rem + 5vw, 6.5rem);
+
+  /* ---- Space ---- */
+  --gap-xs: 0.375rem;
+  --gap-sm: 0.625rem;
+  --gap: 1rem;
+  --gap-md: 1.5rem;
+  --gap-lg: 2.25rem;
+  --gap-xl: 3.5rem;
+  --gap-2xl: 5.5rem;
+
+  /* ---- Shape ---- */
+  --r-sm: 8px;
+  --r: 14px;
+  --r-lg: 22px;
+  --r-xl: 32px;
+  --r-pill: 999px;
+
+  /* ---- Depth ---- */
+  --shadow-sm: 0 1px 2px rgb(16 41 63 / 0.05), 0 2px 8px rgb(16 41 63 / 0.04);
+  --shadow: 0 2px 6px rgb(16 41 63 / 0.06), 0 10px 26px rgb(16 41 63 / 0.08);
+  --shadow-lg: 0 6px 16px rgb(16 41 63 / 0.09), 0 24px 60px rgb(16 41 63 / 0.14);
+  --shadow-inset: inset 0 0 0 1px var(--line);
+
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --fast: 140ms var(--ease);
+  --base: 240ms var(--ease);
+  --slow: 420ms var(--ease);
+
+  /* ---- Layout ---- */
+  --page: 1280px;
+  --page-narrow: 940px;
+  --header-h: 72px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

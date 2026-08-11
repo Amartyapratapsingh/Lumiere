@@ -1,0 +1,37 @@
+{
+  "name": "lumiere",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Lumière — imported beauty marketplace for India. Seller + consumer accounts.",
+  "scripts": {
+    "dev": "concurrently -n api,web -c magenta,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "node server/index.js",
+    "dev:web": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "seed": "node server/seed.js",
+    "images": "node scripts/download-images.mjs",
+    "fonts": "node scripts/download-fonts.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "check:upload": "node scripts/check-upload.mjs",
+    "check:overflow": "node scripts/check-overflow.mjs 414 768 1440"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.19.2",
+    "multer": "^2.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^9.0.1",
+    "vite": "^5.4.8"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true
+  }
+}

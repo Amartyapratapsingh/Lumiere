@@ -1,0 +1,14 @@
+# Normalise line endings so Windows and macOS/Linux contributors don't fight.
+* text=auto eol=lf
+
+# Binary assets — never touch these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.woff2 binary
+*.ico binary
+
+# Keep PowerShell scripts on CRLF.
+*.ps1 text eol=crlf
