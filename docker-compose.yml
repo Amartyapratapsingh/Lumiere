@@ -1,0 +1,51 @@
+# Lumière on the shared rekvon box.
+#
+# Caddy already owns :80/:443 there and lives on its own network, so this app
+# publishes nothing to the host — Caddy reaches it by container name over the
+# shared network. Add a matching block to /root/voicecloner/Caddyfile:
+#
+#   lumiere.rekvon.in {
+#       encode zstd gzip
+#       request_body { max_size 10MB }
+#       header {
+#           Strict-Transport-Security "max-age=15552000"
+#           X-Content-Type-Options "nosniff"
+#           Referrer-Policy "strict-origin-when-cross-origin"
+#       }
+#       reverse_proxy lumiere:4000
+#   }
+
+services:
+  lumiere:
+    build:
+      context: .
+      args:
+        # Baked into the client bundle at build time.
+        VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY:-}
+    container_name: lumiere
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      PUBLIC_URL: ${PUBLIC_URL:-https://lumiere.rekvon.in}
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY:-}
+      VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      SELLER_ALERT_OVERRIDE: ${SELLER_ALERT_OVERRIDE:-}
+      # Leave unset in production: the seeded accounts have published passwords.
+      ALLOW_DEMO_LOGIN: ${ALLOW_DEMO_LOGIN:-}
+    volumes:
+      # The JSON database and uploaded product photos must outlive the container.
+      - lumiere-data:/app/server/data
+    networks:
+      - web
+
+volumes:
+  lumiere-data:
+
+networks:
+  web:
+    # The network Caddy is already attached to on this host.
+    external: true
+    name: voicecloner_default

@@ -7,7 +7,7 @@
  */
 import { randomBytes } from 'node:crypto'
 import { load, mutate } from './db.js'
-import { CLERK_ENABLED } from './config.js'
+import { CLERK_ENABLED, ALLOW_DEMO_LOGIN, IS_PROD } from './config.js'
 
 const COOKIE = 'lumiere_sid'
 const MAX_AGE_MS = 1000 * 60 * 60 * 24 * 30 // 30 days
@@ -15,7 +15,7 @@ const MAX_AGE_MS = 1000 * 60 * 60 * 24 * 30 // 30 days
 export const cookieOptions = {
   httpOnly: true,
   sameSite: 'lax',
-  secure: false, // local dev over http
+  secure: IS_PROD, // HTTPS-only once deployed behind Caddy
   maxAge: MAX_AGE_MS,
   path: '/',
 }
@@ -61,11 +61,18 @@ export async function attachUser(req, _res, next) {
 export const requireAuth = (req, res, next) =>
   req.user ? next() : res.status(401).json({ error: 'Please sign in to continue.' })
 
-/** Blocks the legacy password endpoints once Clerk is running the show. */
-export const requireLegacyAuth = (_req, res, next) =>
-  CLERK_ENABLED
-    ? res.status(410).json({ error: 'Password login is disabled — this site now signs in with Clerk.' })
-    : next()
+/**
+ * Blocks the built-in password endpoints when Clerk is running, and always in
+ * production unless explicitly re-enabled — the seeded accounts have published
+ * passwords and must never be reachable from the public internet by default.
+ */
+export const requireLegacyAuth = (_req, res, next) => {
+  if (CLERK_ENABLED)
+    return res.status(410).json({ error: 'Password login is disabled — this site signs in with Clerk.' })
+  if (!ALLOW_DEMO_LOGIN)
+    return res.status(403).json({ error: 'Sign-in is not configured on this deployment.' })
+  return next()
+}
 
 export const requireRole = (role) => (req, res, next) => {
   if (!req.user) return res.status(401).json({ error: 'Please sign in to continue.' })

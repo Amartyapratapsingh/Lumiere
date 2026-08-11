@@ -11,6 +11,12 @@ const DEMO = [
   { role: 'Seller', email: 'seller@lumiere.in', password: 'seller123', note: 'Attar House Dubai' },
 ]
 
+/**
+ * These credentials are published in the README, so the shortcut buttons only
+ * appear in development. A production build never renders them.
+ */
+const SHOW_DEMO = import.meta.env.DEV || import.meta.env.VITE_SHOW_DEMO_LOGINS === 'true'
+
 /** The built-in email + password form, used until Clerk keys are configured. */
 function PasswordForm() {
   const { login } = useAuth()
@@ -79,6 +85,7 @@ function PasswordForm() {
         New here? <Link to="/signup" className="link-arrow">Create an account</Link>
       </p>
 
+      {SHOW_DEMO && (
       <div className="demo-box">
         <p className="eyebrow">Demo accounts</p>
         {DEMO.map((d) => (
@@ -105,6 +112,7 @@ function PasswordForm() {
           </button>
         ))}
       </div>
+      )}
     </>
   )
 }

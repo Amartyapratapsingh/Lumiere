@@ -26,10 +26,33 @@ export const SELLER_ALERT_OVERRIDE = clean(process.env.SELLER_ALERT_OVERRIDE)
 export const PUBLIC_URL = clean(process.env.PUBLIC_URL) || 'http://localhost:5173'
 export const PORT = Number(clean(process.env.PORT)) || 4000
 
+export const IS_PROD = process.env.NODE_ENV === 'production'
+
+/**
+ * The seeded demo accounts have published passwords, so they must not be
+ * reachable on a public deployment. In production the built-in password login
+ * is refused outright — sign-in has to go through Clerk.
+ */
+export const ALLOW_DEMO_LOGIN = !IS_PROD || clean(process.env.ALLOW_DEMO_LOGIN) === 'true'
+
 /** One-line summary printed at boot so the active mode is never a mystery. */
 export function describeConfig() {
-  return [
-    `  auth   : ${CLERK_ENABLED ? 'Clerk' : 'built-in password login (set Clerk keys to switch)'}`,
+  const auth = CLERK_ENABLED
+    ? 'Clerk'
+    : ALLOW_DEMO_LOGIN
+      ? 'built-in password login (set Clerk keys to switch)'
+      : 'NONE — production without Clerk keys, so sign-in is disabled'
+
+  const lines = [
+    `  mode   : ${IS_PROD ? 'production' : 'development'}`,
+    `  auth   : ${auth}`,
     `  email  : ${RESEND_ENABLED ? `Resend, from ${RESEND_FROM}` : 'console only (set RESEND_API_KEY to send)'}`,
-  ].join('\n')
+  ]
+
+  if (IS_PROD && !CLERK_ENABLED) {
+    lines.push('')
+    lines.push('  !! Nobody can sign in. Add Clerk keys, or set ALLOW_DEMO_LOGIN=true')
+    lines.push('     to expose the seeded demo accounts (published passwords — public box only).')
+  }
+  return lines.join('\n')
 }

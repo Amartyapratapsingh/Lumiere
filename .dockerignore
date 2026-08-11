@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.gitignore
+.shots
+.env
+.env.local
+server/data
+scripts
+images
+*.log
+README.md
