@@ -1445,11 +1445,10 @@
   font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
 }
 
-/* Clerk mounts its own form here; clerkConfig.js restyles its internals. */
+/* Clerk mounts its own form here; styles/clerk.css restyles its internals. */
 .clerk-mount {
   margin-top: var(--gap-md);
-  display: flex;
-  justify-content: center;
+  width: 100%;
 }
 
 .clerk-mount > * { width: 100%; }

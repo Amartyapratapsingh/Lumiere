@@ -140,16 +140,19 @@ export default function Signup() {
           <RolePicker value={role} onChange={chooseRole} />
 
           {CLERK_ENABLED ? (
+            // Clerk renders its own "Already have an account?" link — don't
+            // duplicate it below.
             <div className="clerk-mount">
               <SignUp routing="virtual" signInUrl="/login" fallbackRedirectUrl="/welcome" />
             </div>
           ) : (
-            <PasswordForm role={role} />
+            <>
+              <PasswordForm role={role} />
+              <p className="auth-alt">
+                Already have an account? <Link to="/login" className="link-arrow">Sign in</Link>
+              </p>
+            </>
           )}
-
-          <p className="auth-alt">
-            Already have an account? <Link to="/login" className="link-arrow">Sign in</Link>
-          </p>
         </div>
       </div>
     </div>

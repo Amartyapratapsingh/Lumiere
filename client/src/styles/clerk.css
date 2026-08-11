@@ -1,0 +1,236 @@
+/**
+ * Clerk's sign-in / sign-up widget, restyled to match the storefront.
+ *
+ * The `appearance` prop in clerkConfig.js handles colours and the primary
+ * button; this sheet strips the card chrome Clerk ships by default — the
+ * border, the internal dividers and the striped footer — so the form reads as
+ * part of the page rather than a widget dropped onto it.
+ *
+ * Clerk's `.cl-*` class names are its documented styling hooks. `!important`
+ * is unavoidable here: Clerk injects its own styles at runtime, after ours.
+ */
+
+/* ── strip the card ───────────────────────────────────────────────────────── */
+
+.clerk-mount .cl-rootBox,
+.clerk-mount .cl-cardBox,
+.clerk-mount .cl-card {
+  width: 100% !important;
+  max-width: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+.clerk-mount .cl-card > *,
+.clerk-mount .cl-main > * {
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Separate the attribution from the form with a single deliberate rule. */
+.clerk-mount .cl-footer {
+  margin-top: 0.9rem !important;
+  padding-top: 0.9rem !important;
+  border-top: 1px solid var(--line) !important;
+}
+
+.clerk-mount .cl-header { display: none !important; }
+
+.clerk-mount .cl-main {
+  gap: var(--gap) !important;
+  padding: 0 !important;
+}
+
+/* ── social buttons → our ghost pill ──────────────────────────────────────── */
+
+.clerk-mount .cl-socialButtons { gap: 0.5rem !important; }
+
+.clerk-mount .cl-socialButtonsBlockButton {
+  height: auto !important;
+  padding: 0.8rem 1.4rem !important;
+  border: 1px solid var(--line-strong) !important;
+  border-radius: var(--r-pill) !important;
+  background: var(--paper) !important;
+  color: var(--plum) !important;
+  font-size: var(--step--1) !important;
+  font-weight: 600 !important;
+  transition: border-color var(--fast), transform var(--fast) !important;
+}
+
+.clerk-mount .cl-socialButtonsBlockButton:hover {
+  border-color: var(--plum) !important;
+  transform: translateY(-1px);
+}
+
+.clerk-mount .cl-socialButtonsBlockButtonText {
+  font-size: var(--step--1) !important;
+  font-weight: 600 !important;
+  color: var(--plum) !important;
+}
+
+/* ── divider ──────────────────────────────────────────────────────────────── */
+
+.clerk-mount .cl-dividerRow { margin: 0.35rem 0 !important; }
+.clerk-mount .cl-dividerLine { background: var(--line) !important; height: 1px !important; }
+
+.clerk-mount .cl-dividerText {
+  color: var(--muted-light) !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+}
+
+/* ── fields ───────────────────────────────────────────────────────────────── */
+
+.clerk-mount .cl-formFieldLabel {
+  font-size: var(--step--1) !important;
+  font-weight: 600 !important;
+  color: var(--plum) !important;
+  margin-bottom: 0.35rem !important;
+}
+
+.clerk-mount .cl-formFieldInput,
+.clerk-mount input.cl-formFieldInput {
+  width: 100% !important;
+  padding: 0.8rem 1rem !important;
+  border: 1px solid var(--line-strong) !important;
+  border-radius: var(--r-sm) !important;
+  background: var(--paper) !important;
+  color: var(--ink) !important;
+  font-size: var(--step-0) !important;
+  box-shadow: none !important;
+  transition: border-color var(--fast), box-shadow var(--fast) !important;
+}
+
+.clerk-mount .cl-formFieldInput:focus,
+.clerk-mount .cl-formFieldInput:focus-within {
+  border-color: var(--plum) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--plum) 12%, transparent) !important;
+  outline: none !important;
+}
+
+/* Chrome paints autofilled inputs pale blue; force our own surface back. */
+.clerk-mount .cl-formFieldInput:-webkit-autofill,
+.clerk-mount .cl-formFieldInput:-webkit-autofill:hover,
+.clerk-mount .cl-formFieldInput:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ink) !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--paper) inset !important;
+  caret-color: var(--ink);
+}
+
+.clerk-mount .cl-formFieldAction,
+.clerk-mount .cl-formFieldAction__password {
+  font-size: var(--step--1) !important;
+  font-weight: 500 !important;
+  color: var(--muted) !important;
+}
+
+.clerk-mount .cl-formFieldAction:hover { color: var(--plum) !important; }
+
+.clerk-mount .cl-formFieldInputShowPasswordButton { color: var(--muted-light) !important; }
+.clerk-mount .cl-formFieldInputShowPasswordButton:hover { color: var(--plum) !important; }
+
+/* ── primary button ───────────────────────────────────────────────────────── */
+
+.clerk-mount .cl-formButtonPrimary {
+  width: 100% !important;
+  padding: 0.95rem 1.6rem !important;
+  border: 0 !important;
+  border-radius: var(--r-pill) !important;
+  background: var(--plum) !important;
+  color: #fff !important;
+  font-size: var(--step--1) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  box-shadow: none !important;
+  transition: transform var(--fast), background var(--fast), box-shadow var(--fast) !important;
+}
+
+.clerk-mount .cl-formButtonPrimary:hover {
+  background: var(--berry) !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow) !important;
+}
+
+.clerk-mount .cl-formButtonPrimary::after { display: none !important; }
+
+/* ── footer ───────────────────────────────────────────────────────────────── */
+
+.clerk-mount .cl-footer,
+.clerk-mount .cl-footerAction {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin-top: 0.4rem !important;
+}
+
+.clerk-mount .cl-footerActionText {
+  font-size: var(--step--1) !important;
+  color: var(--muted) !important;
+}
+
+.clerk-mount .cl-footerActionLink {
+  font-size: var(--step--1) !important;
+  font-weight: 600 !important;
+  color: var(--plum) !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.clerk-mount .cl-footerActionLink:hover { border-color: var(--plum) !important; }
+
+/* Development instances render a striped orange band behind "Secured by Clerk".
+   Clerk's internal class names are content-hashed and change between releases,
+   so style by structure rather than pinning a hash — the band disappears by
+   itself once a production Clerk instance is used.
+   Clerk also draws hairline borders between internal rows. Both go here:
+   no div inside this widget needs a border or a background image. Inputs and
+   buttons are not divs, so their own borders are untouched. */
+.clerk-mount div {
+  background-image: none !important;
+  border: 0 !important;
+}
+
+/* "Secured by Clerk" attribution — keep it, just quieten it. */
+.clerk-mount .cl-internal-uyu30o,
+.clerk-mount [class*='cl-internal'] p,
+.clerk-mount [class*='cl-internal'] a[href*='clerk.com'] {
+  color: var(--muted-light) !important;
+  font-size: 0.68rem !important;
+}
+
+/* The dev-mode notice, reduced to a quiet note rather than a warning banner. */
+.clerk-mount .cl-internal-1k7jtru,
+.clerk-mount [class*='cl-internal'][class*='badge'],
+.clerk-mount .cl-badge {
+  background: transparent !important;
+  color: var(--muted-light) !important;
+  border: 0 !important;
+  font-size: 0.66rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: none !important;
+}
+
+/* ── misc ─────────────────────────────────────────────────────────────────── */
+
+.clerk-mount .cl-formFieldErrorText,
+.clerk-mount .cl-formFieldWarningText { font-size: var(--step--1) !important; }
+
+.clerk-mount .cl-identityPreview {
+  border-radius: var(--r-pill) !important;
+  border: 1px solid var(--line) !important;
+  background: var(--cream-deep) !important;
+}
+
+.clerk-mount .cl-otpCodeFieldInput {
+  border: 1px solid var(--line-strong) !important;
+  border-radius: var(--r-sm) !important;
+  color: var(--ink) !important;
+}

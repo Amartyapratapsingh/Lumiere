@@ -155,6 +155,40 @@ class CDP {
   }
 }
 
+/** Everything a signed-out visitor can reach — plus proof that Clerk is wired. */
+async function publicOnly(page) {
+  console.log('PUBLIC SURFACE')
+  await page.goto('/')
+  check('homepage renders', (await page.text()).includes('Lumière'))
+  check('hero product card loaded', await page.eval('!!document.querySelector(".hero-float")'))
+
+  await page.goto('/shop/fragrance')
+  const cards = await page.eval('document.querySelectorAll(".pcard").length')
+  check('fragrance grid renders 12 products', cards === 12, `got ${cards}`)
+
+  await page.goto('/product/oud-mood-elixir')
+  check('PDP shows the product name', (await page.text()).includes('Oud Mood Elixir'))
+  const before = await page.eval('document.querySelector(".pdp-price strong").textContent')
+  await page.click('.chip-variant', '100 ml')
+  const after = await page.eval('document.querySelector(".pdp-price strong").textContent')
+  check('choosing a size updates the price', before !== after, `${before} -> ${after}`)
+
+  await page.click('.pdp-actions .btn', null, 1200)
+  check('cart still works signed out', (await page.text()).includes('Your bag'))
+
+  await page.goto('/login')
+  await page.waitFor(`document.querySelector('.cl-rootBox, .clerk-mount iframe, .cl-card')`)
+  check("Clerk's sign-in form is mounted", await page.eval(
+    `!!document.querySelector('.cl-rootBox, .cl-card, .clerk-mount iframe')`
+  ))
+  check('built-in password form is gone', !(await page.eval('!!document.querySelector("#lg-pass")')))
+  check('demo credentials are not shown', !(await page.text()).includes('shop123'))
+
+  // Checkout must bounce a signed-out visitor to sign-in.
+  await page.goto('/checkout')
+  check('checkout redirects to sign-in', (await page.url()).startsWith('/login'), await page.url())
+}
+
 async function main() {
   await mkdir(OUT, { recursive: true })
   const profile = join(OUT, '.edge-smoke')
@@ -175,6 +209,18 @@ async function main() {
   })
 
   try {
+    // Authenticated journeys drive the built-in password form. With Clerk
+    // running that form no longer exists (by design), and signing in would mean
+    // driving Clerk's hosted UI plus an emailed verification code — out of
+    // scope here. Cover the public surface instead and say so plainly.
+    const { provider } = await fetch(`${WEB}/api/auth/config`).then((r) => r.json())
+    if (provider === 'clerk') {
+      console.log('\nAUTH PROVIDER: Clerk — skipping the signed-in journeys.')
+      console.log('Set the Clerk keys aside in .env to run the full suite.\n')
+      await publicOnly(page)
+      return
+    }
+
     // ─────────── consumer journey ───────────
     console.log('\nCONSUMER — sign in')
     await page.goto('/login')
